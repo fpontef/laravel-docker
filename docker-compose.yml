@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    ports:
+      # localhost:8080 for external access while developing
+      - 8080:80
+      #- 80:80
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+      - php
+  mysql:
+    container_name: mysql
+    image: mariadb:10.5
+    # 3308 is the external port in case of use DBeaver, etc
+    # 3306 is for use in .env configuration for internal services, like laravel
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./mysql:/var/lib/mysql
+  php:
+    container_name: php
+    user: laravel:laravel
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+  composer:
+    container_name: composer
+    user: laravel:laravel
+    # We will need to build to avoid permissions issues with a mounted volume
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    # working dir is where we want composer to run the commands
+    working_dir: /var/www/html
+  npm:
+    container_name: npm
+    user: node
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    entrypoint: ["npm"]
+    working_dir: /var/www/html
+  artisan: 
+    container_name: artisan
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - mysql
+    entrypoint: ["php", "/var/www/html/artisan"]
+    working_dir: /var/www/html
+

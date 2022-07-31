@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx-prod
+    build:
+      context: .
+      dockerfile: nginx.prod.dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - mysql
+      - php
+      - assets
+  php:
+    container_name: php-prod
+    user: laravel:laravel
+    build:
+      context: .
+      dockerfile: php.prod.dockerfile
+  assets:
+    container_name: assets-prod
+    user: node
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    #command: ["/bin/sh", "-c", "npm install && npm run production"]
+    command: ["/bin/sh", "-c", "npm install && npm run build"]
