@@ -53,9 +53,15 @@ npm usind the `npm:current-alpine` docker hub image
   - And check `http://localhost:8080/` for changes.
 
 - For Laravel Project follow:
-  - To create a brand new laravel project (after you ran docker-compose up nginx step)
-    `docker-compose run --rm composer create-project laravel/laravel .`
-    Note: there's a period "." at the end of the command, don't worry because composer service have the work path to handle what is the current folder we want.
+  - First remove the hidden file .gitkeep inside the src to avoid composer errors.
+    `rm src/.gitkeep`
+
+  - Copy existing project inside `src` folder or create a new one as follows:
+
+    - To create a brand new laravel project (after you ran docker-compose up nginx step) 
+      `docker-compose run --rm composer create-project laravel/laravel .`
+  
+      Note: there's a period "." at the end of the command, don't worry because composer service have the work path to handle what is the current folder we want.
 
   - configure .env file inside src folder
 
